@@ -58,20 +58,25 @@ def run_discord_bot():
         if message.author == client.user:
             return
 
-        # Extract information from the message object
-        username = str(message.author)
-        user_message = str(message.content)
-        channel = str(message.channel)
+        # Check if the bot is mentioned in the message
+        if client.user in message.mentions:
+            # Extract information from the message object
+            username = str(message.author)
+            user_message = str(message.content)
+            channel = str(message.channel)
 
-        # Print the received message to the console
-        print(f'{username} said: "{user_message}" ({channel})')
+            # Print the received message to the console
+            print(f'{username} said: "{user_message}" ({channel})')
 
-        # Check if the message starts with a '?' (indicating a private response)
-        if user_message[0] == '?':
-            user_message = user_message[1:]
-            await send_message(message, user_message, is_private=True)
-        else:
-            await send_message(message, user_message, is_private=False)
+            # Remove the bot mention from the user_message
+            user_message = user_message.replace(f'<@{client.user.id}>', '').strip()
+            
+            # Check if the message starts with a '?' (indicating a private response)
+            if user_message.startswith('?'):
+                user_message = user_message[1:]
+                await send_message(message, user_message, is_private=True)
+            else:
+                await send_message(message, user_message, is_private=False)
 
     # Start the Discord bot using the retrieved token
     client.run(TOKEN)

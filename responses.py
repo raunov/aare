@@ -16,16 +16,16 @@ def get_response(message: str) -> str:
     p_message = message.lower()
 
     # Check if the message is "hello" and return a greeting
-    if p_message == 'hello':
-        return 'Hey there!'
+    if p_message == 'tere':
+        return 'Tervist!'
 
     # Check if the message is "roll" and return a random number between 1 and 6 (inclusive)
-    if message == 'roll':
+    if p_message == 'täring':
         return str(random.randint(1, 6))
 
     # Check if the message is "!help" and return a help message
-    if p_message == '!help':
-        return '`This is a help message that you can modify.`'
+    if p_message == '!abi':
+        return '`Siin on abiinfo, mida saab muuta`'
 
     # If none of the above conditions are met, return a default message indicating the bot didn't understand the input
-    return 'I didn\'t understand what you wrote. Try typing "!help".'
+    return p_message.upper() + '... Ma ei saanud aru, mida sa ütlesid. Proovi uuesti!'
