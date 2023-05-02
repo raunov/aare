@@ -1,6 +1,4 @@
-# Import the 'random' module to generate random numbers
-import random
-from functions import draft_email, analyze_stock
+from functions import analyze_stock
 
 def debug_response(text):
     """
@@ -13,7 +11,7 @@ def debug_response(text):
     Returns:
         str: The processed text.
     """
-    response = text.upper() + '... Ma ei saanud aru, mida sa ütlesid...'
+    response = text.upper() + ' ... eeh, ei saanud aru. Proovi `!abi`'
     return response
 
 # Define a function to generate a response based on the user's input, including the user's name in the response
@@ -35,20 +33,12 @@ def get_response(message: str, username:str) -> str:
     if p_message == 'tere':
         return 'Tervist, ' + username + '!'
     
-    if 'analüüsi' in p_message:
+    if 'analüüs' in p_message:
         return analyze_stock(p_message)
     
-    # if message includes "tere" and "bot" return a greeting
-    if 'ekiri' in p_message:
-        return draft_email(p_message, username)
-
-    # Check if the message is "roll" and return a random number between 1 and 6 (inclusive)
-    if 'täring' in p_message:
-        return str(random.randint(1, 6))
-
     # Check if the message is "!help" and return a help message
     if p_message == '!abi':
-        return '`Siin on abiinfo, mida saab muuta`'
+        return 'Proovi näiteks: `@aare, palun analüüsi Tallinna Kaubamaaja ja tema konkurente`'
 
     # If none of the above conditions are met, return a default message indicating the bot didn't understand the input
     return debug_response(p_message)
