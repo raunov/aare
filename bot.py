@@ -25,7 +25,7 @@ async def send_response(message, user_message, is_private):
     """
     try:
         # Get the appropriate response based on the user's message
-        response = responses.get_response(user_message)
+        response = responses.get_response(user_message, message.author.name)
 
         # Send the response either privately or in the same channel, depending on the 'is_private' flag
         await message.author.send(response) if is_private else await message.channel.send(response)

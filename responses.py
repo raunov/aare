@@ -1,6 +1,6 @@
 # Import the 'random' module to generate random numbers
 import random
-from functions import draft_email
+from functions import draft_email, analyze_stock
 
 def debug_response(text):
     """
@@ -16,7 +16,8 @@ def debug_response(text):
     response = text.upper() + '... Ma ei saanud aru, mida sa ütlesid...'
     return response
 
-def get_response(message: str) -> str:
+# Define a function to generate a response based on the user's input, including the user's name in the response
+def get_response(message: str, username:str) -> str:
     """
     Generates a response based on the given message.
 
@@ -32,11 +33,14 @@ def get_response(message: str) -> str:
 
     # Check if the message is "hello" and return a greeting
     if p_message == 'tere':
-        return 'Tervist!'
+        return 'Tervist, ' + username + '!'
+    
+    if 'analüüsi' in p_message:
+        return analyze_stock(p_message)
     
     # if message includes "tere" and "bot" return a greeting
     if 'ekiri' in p_message:
-        return draft_email(p_message)
+        return draft_email(p_message, username)
 
     # Check if the message is "roll" and return a random number between 1 and 6 (inclusive)
     if 'täring' in p_message:
