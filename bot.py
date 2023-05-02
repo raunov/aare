@@ -24,9 +24,11 @@ async def send_response(message, user_message, is_private):
         None
     """
     try:
+        waitmessage = await message.channel.send("Hästi, "+ message.author.name +" las ma mõtlen...")
         # Get the appropriate response based on the user's message
         response = responses.get_response(user_message, message.author.name)
 
+        await waitmessage.delete()
         # Send the response either privately or in the same channel, depending on the 'is_private' flag
         await message.author.send(response) if is_private else await message.channel.send(response)
 
