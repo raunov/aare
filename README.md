@@ -1,7 +1,8 @@
 # Aare
 Aare on nutikas discordi juturobot mis räägib sulaselges eesti keeles. 
-Aare on eelkõige mõeldud finantsteemadel arutama. 
-Töö on veel pooleli ja Aare on alles alfa staadiumis.
+Aare on eelkõige mõeldud finantsteemadel arutama. Töö on veel pooleli ja Aare on alles alfa staadiumis. Aare kasutab LLM keeletehnoloogiat, millel on kalduvus asju ette kujutada ja välja mõelda, eriti mis puutub värsketesse teemadesse. Nii et võta seda kui meelelahutust.
+
+**Oluline teada: Oma finantsotsused tee ise, mitte ära kuula Aare ega muid investeerimiskratte.** 
 
 ## Kuidas Aare paigaldada?
 
