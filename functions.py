@@ -12,7 +12,7 @@ load_dotenv(find_dotenv())
 
 def analyze_stock(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = ChatOpenAI(model_name="gpt-4", temperature=0.5)
+    chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
     
     # Define a template string for the system message prompt
     template = """
