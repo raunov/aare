@@ -11,7 +11,7 @@ import responses
 # Load environment variables from the .env file
 load_dotenv()
 
-async def send_message(message, user_message, is_private):
+async def send_response(message, user_message, is_private):
     """
     Sends a response to a given message based on the user's input.
 
@@ -71,12 +71,7 @@ def run_discord_bot():
             # Remove the bot mention from the user_message
             user_message = user_message.replace(f'<@{client.user.id}>', '').strip()
             
-            # Check if the message starts with a '?' (indicating a private response)
-            if user_message.startswith('?'):
-                user_message = user_message[1:]
-                await send_message(message, user_message, is_private=True)
-            else:
-                await send_message(message, user_message, is_private=False)
+            await send_response(message, user_message, is_private=False) # Send a response to the message
 
     # Start the Discord bot using the retrieved token
     client.run(TOKEN)
