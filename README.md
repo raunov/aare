@@ -36,3 +36,7 @@ Käivita Aare käsklusega:
     python main.py
 
 Ja nüüd ongi sul kratt nimega Aare, kes valmis sinuga Discordis juttu ajama ja aitama sul aardeid kokku ajada.
+
+Küsi temalt näiteks:
+* @aare, *analüüsi* mulle Tallinna Kaubamaja aktsia hinnaliikumisi
+* Huvitav oleks teada, kas LHV on parem panga aktsia kui COOP või Siauliai Bankas? @aare, tee kiire *analüüs* palun
