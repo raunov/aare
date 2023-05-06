@@ -1,4 +1,4 @@
-from functions import analyze_stock
+from functions import analyze_stock, soovitus
 
 def debug_response(text):
     """
@@ -33,12 +33,15 @@ def get_response(message: str, username:str) -> str:
     if p_message == 'tere':
         return 'Tervist, ' + username + '!'
     
-    if 'analüüs' in p_message:
+    if 'aktsia' in p_message:
         return analyze_stock(p_message)
+    
+    if 'soovitus' in p_message:
+        return soovitus(p_message)
     
     # Check if the message is "!help" and return a help message
     if p_message == '!abi':
-        return 'Proovi näiteks: `@aare, palun analüüsi Tallinna Kaubamaaja ja tema konkurente`'
+        return 'Proovi näiteks: `@aare, palun analüüsi Tallinna Kaubamaaja ja tema konkurentide aktsiaid'
 
     # If none of the above conditions are met, return a default message indicating the bot didn't understand the input
     return debug_response(p_message)

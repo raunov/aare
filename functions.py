@@ -9,6 +9,25 @@ from langchain.prompts.chat import (
 
 load_dotenv(find_dotenv())
 
+def soovitus(user_input, name="Aare"):
+    # Create a ChatOpenAI instance with the specified model_name and temperature
+    chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
+
+    template = """
+    Sa oled isiklik nõustaja, kes aitab leida lahendusi kliendi probleemidele või küsimustele. 
+    Sinu eesmärk on aidata kasutajal kiiresti leida lahendus, mida ta otsib, ning seejärel veenvalt põhjendada oma soovitust.
+    Ole konstruktiivne, lühike ja konkreetne, ära raiska aega tervitusteks, mine kohte asja juurde.
+    """
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    
+    human_template = "Kasutaja päring, mis sisaldab küsimust, või probleemi, millele soovitust otsitakse: {user_input}"
+    human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [system_message_prompt, human_message_prompt]
+    )
+    chain = LLMChain(llm=chat, prompt=chat_prompt)
+    response = chain.run(user_input=user_input, name=name)
+    return response
 
 def analyze_stock(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
