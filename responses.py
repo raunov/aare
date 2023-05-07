@@ -1,18 +1,5 @@
-from functions import analyze_stock, soovitus
+from functions import analyze_stock, soovitus, chitchat
 
-def debug_response(text):
-    """
-    Custom function to process the text and return a response.
-    In this example, the function converts the input text to uppercase.
-
-    Args:
-        text (str): The input text to process.
-
-    Returns:
-        str: The processed text.
-    """
-    response = text.upper() + ' ... eeh, ei saanud aru. Proovi `!abi`'
-    return response
 
 # Define a function to generate a response based on the user's input, including the user's name in the response
 def get_response(message: str, username:str) -> str:
@@ -44,4 +31,4 @@ def get_response(message: str, username:str) -> str:
         return 'Proovi näiteks: `@aare, palun analüüsi Tallinna Kaubamaaja ja tema konkurentide aktsiaid'
 
     # If none of the above conditions are met, return a default message indicating the bot didn't understand the input
-    return debug_response(p_message)
+    return chitchat(p_message)
