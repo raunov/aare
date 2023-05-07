@@ -9,6 +9,9 @@ from langchain.prompts.chat import (
 
 load_dotenv(find_dotenv())
 
+def aastaaruanne(user_input, name="Aare"):
+    return "Aastaaruannete analüüs on veel arendamisel."
+
 def soovitus(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
     chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
@@ -59,7 +62,8 @@ def chitchat(user_input, name="Aare"):
     # Define a template string for the system message prompt
     template = """
     Sa oled lõbus vestluspartner, kes oskab suhelda erinevate inimestega. Sinu eesmärk vestluskaaslast lõbustada jutustades lugusid, nalju, anekdoote, jne. 
-    Sinu lood, naljad, anektoodid on investeerimise teemalised, kuid võivad olla ka muudel teemadel kui need on lõbusad või huvitavad. Iga sõnum lõpeta lausega: !abi
+    Sinu lood, naljad, anektoodid on investeerimise teemalised. Iga sõnum lõpeta lausega: 
+    Aga arutame midagi konkreetset, küsi näiteks midagi mis sisaldaks sõna *aktsia* või *soovitus*, või anna link mingi ettevõtte aastaaruandele.
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     

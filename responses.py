@@ -1,4 +1,4 @@
-from functions import analyze_stock, soovitus, chitchat
+from functions import analyze_stock, soovitus, chitchat, aastaaruanne
 
 
 # Define a function to generate a response based on the user's input, including the user's name in the response
@@ -25,6 +25,9 @@ def get_response(message: str, username:str) -> str:
     
     if 'soovitus' in p_message:
         return soovitus(p_message)
+    
+    if 'https' in p_message:
+        return aastaaruanne(p_message)
     
     # Check if the message is "!help" and return a help message
     if p_message == '!abi':
