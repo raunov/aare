@@ -24,13 +24,22 @@ async def send_response(message, user_message, is_private):
         None
     """
     try:
-        waitmessage = await message.channel.send("Hästi, "+ message.author.name +" las ma mõtlen...")
-        # Get the appropriate response based on the user's message
-        response = responses.get_response(user_message, message.author.name)
-
-        await waitmessage.delete()
-        # Send the response either privately or in the same channel, depending on the 'is_private' flag
-        await message.author.send(response) if is_private else await message.channel.send(response)
+        
+        # set typing status on discord channel
+        async with message.channel.typing():
+            # fetch the 10 most recent messages on the channel
+            history = []
+            async for msg in message.channel.history(limit=10):
+                history.append((msg.author.name, msg.content))
+            
+            # Print the received message to the console
+            print(f'{message.author.name} said: "{user_message}" ({message.channel})')
+                       
+            # Get the appropriate response based on the user's message and recent message history on the channel
+            response = responses.get_response(user_message, history, message.author.name)
+            
+            # Send the response either privately or in the same channel, depending on the 'is_private' flag
+            await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
         # Print any exceptions that occur while sending the message

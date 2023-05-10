@@ -2,7 +2,7 @@ from functions import analyze_stock, soovitus, chitchat, aastaaruanne
 
 
 # Define a function to generate a response based on the user's input, including the user's name in the response
-def get_response(message: str, username:str) -> str:
+def get_response(message: str, history:str, username:str) -> str:
     """
     Generates a response based on the given message.
 
@@ -34,4 +34,5 @@ def get_response(message: str, username:str) -> str:
         return 'Proovi näiteks: `@aare, palun analüüsi Tallinna Kaubamaaja ja tema konkurentide aktsiaid'
 
     # If none of the above conditions are met, return a default message indicating the bot didn't understand the input
-    return chitchat(p_message)
+    #return history
+    return chitchat(p_message, history)
