@@ -27,10 +27,11 @@ async def send_response(message, user_message, is_private):
         
         # set typing status on discord channel
         async with message.channel.typing():
-            # fetch the 10 most recent messages on the channel
+            # fetch the 10 most recent messages from non-bots on the channel
             history = []
             async for msg in message.channel.history(limit=10):
-                history.append((msg.author.name, msg.content))
+                if not msg.author.bot:
+                    history.append((msg.author.name, msg.content))
             
             # Print the received message to the console
             print(f'{message.author.name} said: "{user_message}" ({message.channel})')

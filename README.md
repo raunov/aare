@@ -27,7 +27,7 @@ Kopeeri alt Genereeritud URL ja ava see brauseris. Lisa bot soovitud serverisse.
 
 ### 3. Loo konfiguratsioonifail
 Nimeta ümber ```.env.naide``` fail ```.env```-ks ja ava see tekstiredaktoris.
-Kirjuta faili oma Discordi boti token ja [OpenAI API token](https://platform.openai.com/account/api-keys).
+Kirjuta faili oma Discordi boti token ja [OpenAI API token](https://platform.openai.com/account/api-keys) ja soovi korral ka PROMPTLAYER_API_KEY
  Salvesta.
 
 ### 4. Käivita Aare

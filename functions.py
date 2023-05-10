@@ -2,10 +2,10 @@ import requests
 import re
 import json
 from langchain.document_loaders import UnstructuredURLLoader
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models import PromptLayerChatOpenAI
 from langchain.chains import LLMChain
 from langchain.chains.question_answering import load_qa_chain
-from langchain.llms import OpenAI
+from langchain.llms import PromptLayerOpenAIChat, PromptLayerOpenAI
 from dotenv import find_dotenv, load_dotenv
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -29,7 +29,7 @@ def aastaaruanne(user_input, name="Aare"):
         else:
             loader = UnstructuredURLLoader([url])
             documents = loader.load()
-            chain = load_qa_chain(llm=OpenAI, chain_type="map_reduce")
+            chain = load_qa_chain(llm=PromptLayerOpenAI, chain_type="map_reduce")
             query="Millest on siin juttu?"
             chain.run(documents=documents, query=query)
             return json.dumps(chain.results, indent=4)
@@ -38,7 +38,7 @@ def aastaaruanne(user_input, name="Aare"):
 
 def soovitus(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
+    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 
     template = """
     Sa oled isiklik nõustaja, kes aitab leida lahendusi kliendi probleemidele või küsimustele. 
@@ -58,7 +58,7 @@ def soovitus(user_input, name="Aare"):
 
 def analyze_stock(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
     
     # Define a template string for the system message prompt
     template = """
@@ -83,7 +83,7 @@ def analyze_stock(user_input, name="Aare"):
 # [('RaunoV', '@Aare millest me rääkisime?'), ('Aare', 'Ei mäleta')]
 def chitchat(user_input, history, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.9)
+    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.9)
 
     # Define a template string for the system message prompt
     template = """
