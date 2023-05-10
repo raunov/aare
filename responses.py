@@ -20,7 +20,7 @@ def get_response(message: str, history:str, username:str) -> str:
     if p_message == 'tere':
         return 'Tervist, ' + username + '!'
     
-    if 'aktsia' in p_message:
+    if 'aktsia' or 'analüüs' in p_message: 
         return analyze_stock(p_message)
     
     if 'soovitus' in p_message:

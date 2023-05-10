@@ -1,5 +1,6 @@
 # Import the 'os' module to interact with the operating system
 import os
+import re
 # Import 'load_dotenv' function from the 'dotenv' package to load environment variables from a .env file
 from dotenv import load_dotenv
 
@@ -30,13 +31,24 @@ async def send_response(message, user_message, is_private):
             # fetch the 10 most recent messages from non-bots on the channel
             history = []
             async for msg in message.channel.history(limit=10):
-                if not msg.author.bot:
-                    history.append((msg.author.name, msg.content))
+                content = msg.content
+                user_tags = re.findall(r'<@!?(\d+)>', content)
+
+                for user_id in user_tags:
+                    user = await message.guild.fetch_member(int(user_id))
+                    if user:
+                        content = content.replace(f'<@{user_id}>', user.name)
+                        content = content.replace(f'<@!{user_id}>', user.name)
+
+                history.append((msg.author.name, content))
             
+            history.reverse()
             # Print the received message to the console
             print(f'{message.author.name} said: "{user_message}" ({message.channel})')
                        
             # Get the appropriate response based on the user's message and recent message history on the channel
+            # user_message is the last message in the history, take it out from the history
+            user_message = history.pop()[1]
             response = responses.get_response(user_message, history, message.author.name)
             
             # Send the response either privately or in the same channel, depending on the 'is_private' flag
@@ -78,7 +90,7 @@ def run_discord_bot():
             channel = str(message.channel)
 
             # Print the received message to the console
-            print(f'{username} said: "{user_message}" ({channel})')
+            # print(f'{username} said: "{user_message}" ({channel})')
 
             # Remove the bot mention from the user_message
             user_message = user_message.replace(f'<@{client.user.id}>', '').strip()

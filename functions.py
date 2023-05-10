@@ -38,7 +38,7 @@ def aastaaruanne(user_input, name="Aare"):
 
 def soovitus(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
+    chat = PromptLayerChatOpenAI(model_name="gpt-4", temperature=0.5)
 
     template = """
     Sa oled isiklik nõustaja, kes aitab leida lahendusi kliendi probleemidele või küsimustele. 
@@ -58,7 +58,7 @@ def soovitus(user_input, name="Aare"):
 
 def analyze_stock(user_input, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+    chat = PromptLayerChatOpenAI(model_name="gpt-4", temperature=0)
     
     # Define a template string for the system message prompt
     template = """
@@ -87,7 +87,7 @@ def chitchat(user_input, history, name="Aare"):
 
     # Define a template string for the system message prompt
     template = """
-    Sa oled lõbus vestluspartner nimega AARE, kes oskab suhelda erinevate inimestega. 
+    Sa oled lõbus vestluspartner nimega AARE, kes oskab suhelda erinevate inimestega, kohanedes nende vestlusstiiliga. 
     Sinu eesmärk vestluskaaslast lõbustada jutustades lugusid, nalju, anekdoote, jne. 
     Sinu lood, naljad, anektoodid on investeerimise teemalised. Ära tervita, mine kohe asja juurde.
     """
@@ -95,12 +95,11 @@ def chitchat(user_input, history, name="Aare"):
     # convert the history to a string in the format: User: message\nUser: message\nUser: message
     history_txt = "\n".join([f"{user}: {message}" for user, message in history])
     
-    human_template = "Eelnev vestlusajalugu: {history_txt}\n\nKasutaja sõnum, mille teemal vestelda: {user_input}"     
+    human_template = "Kasutaja sõnum, mille teemal vestelda: {user_input}\n\nSellele eelnenud vestlusajalugu: {history_txt}\n\nSINU VASTUS:"     
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages(
         [system_message_prompt, human_message_prompt]
     )
-    print("\nVestlusajalugu:"+history_txt)
     chain = LLMChain(llm=chat, prompt=chat_prompt)
     response = chain.run(user_input=user_input, history_txt=history_txt, name=name)
     
