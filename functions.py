@@ -5,7 +5,7 @@ from langchain.document_loaders import UnstructuredURLLoader
 from langchain.chat_models import PromptLayerChatOpenAI
 from langchain.chains import LLMChain
 from langchain.chains.question_answering import load_qa_chain
-from langchain.llms import PromptLayerOpenAIChat, PromptLayerOpenAI
+from langchain.llms import PromptLayerOpenAI
 from dotenv import find_dotenv, load_dotenv
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -47,7 +47,15 @@ def soovitus(user_input, name="Aare"):
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     
-    human_template = "Kasutaja päring, mis sisaldab küsimust, või probleemi, millele soovitust otsitakse: {user_input}"
+    human_template = """
+    Aita kasutajal leida lahendus vastavalt päringule, mis on <päring></päring> märkide vahel. 
+    Päring võib sisaldada probleemi või küsimust, millele kasutaja vastust otsib. 
+    Ole konkreetne ja selge, struktureeri oma vastus loogiliselt. 
+    Sõltumate küsimuse keelest, sina vastad eesti keeles.
+    Kui sa ei tea vastust, siis ütle, et ei tea.
+    
+    Kasutaja päring:<päring>{user_input}</päring>
+    """
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages(
         [system_message_prompt, human_message_prompt]
@@ -62,14 +70,24 @@ def analyze_stock(user_input, name="Aare"):
     
     # Define a template string for the system message prompt
     template = """
-    Sa oled investeerimisassistent, kes analüüsib aktsiaid. Sinu eesmärk on aidata kasutajal kiiresti analüüsida aktsiat ja anda esmalt soovitus, kas aktsiat osta või mitte, ning seejärel veenvalt põhjendada oma soovitust.
+    Sa oled professionaalne investeerimisassistent, kes analüüsib aktsiaid. 
+    Sinu eesmärk on aidata kasutajal kiiresti analüüsida aktsiat 
+    ja anda esmalt soovitus, kas aktsiat osta või mitte, ning seejärel veenvalt põhjendada oma soovitust.
     Oled täpne, lühike ja konkreetne, ära raiska aega tervitusteks, mine kohte asja juurde.
     
     Tuvasta kasutaja päringust ettevõtte nime või aktsia sümboli, ning analüüsi tüübi (tehniline, fundamentaalne, konkurentsianalüüs, jne).
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     
-    human_template = "Kasutaja päring, mis sisaldab analüüsitava ettevõtte nime või tickerit ning muid juhiseid: {user_input}"
+    human_template = """
+    Aita kasutajat analüüsida vastavalt päringule, mis on <päring></päring> märkide vahel. 
+    Päring võib sisaldada analüüsitava ettevõtte nime või mitut ettevõtet, samuti analüüsi tüüpi. 
+    Ole konkreetne ja selge, struktureeri oma vastus loogiliselt.
+    Sõltumate küsimuse keelest, sina vastad eesti keeles.
+    Kui sa ei tea vastust, siis ütle, et ei tea.
+    
+    Kasutaja päring:<päring>{user_input}</päring>
+    """
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages(
         [system_message_prompt, human_message_prompt]
@@ -89,13 +107,19 @@ def chitchat(user_input, history, name="Aare"):
     template = """
     Sa oled lõbus vestluspartner nimega AARE, kes oskab suhelda erinevate inimestega, kohanedes nende vestlusstiiliga. 
     Sinu eesmärk vestluskaaslast lõbustada jutustades lugusid, nalju, anekdoote, jne. 
-    Sinu lood, naljad, anektoodid on investeerimise teemalised. Ära tervita, mine kohe asja juurde.
+    Sinu lood, naljad, anektoodid on investeerimise teemalised. 
+    Ära tervita, mine kohe asja juurde.
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     # convert the history to a string in the format: User: message\nUser: message\nUser: message
     history_txt = "\n".join([f"{user}: {message}" for user, message in history])
     
-    human_template = "Kasutaja sõnum, mille teemal vestelda: {user_input}\n\nSellele eelnenud vestlusajalugu: {history_txt}\n\nSINU VASTUS:"     
+    human_template = """
+    Kasutaja sõnum, mille teemal vestelda: {user_input}
+    Sellele eelnenud vestlusajalugu: {history_txt}
+    
+    SINU VASTUS:
+    """
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages(
         [system_message_prompt, human_message_prompt]
