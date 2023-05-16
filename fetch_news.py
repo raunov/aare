@@ -32,14 +32,16 @@
 
 """
 
-import requests
-import os
-from datetime import datetime
-from bs4 import BeautifulSoup
-import html2markdown
-import htmltabletomd
-
 def fetch_nasdaqbaltic_news(company, fromDate, toDate):
+    import requests
+    import os
+    from datetime import datetime
+    from bs4 import BeautifulSoup
+    import html2markdown
+    import htmltabletomd
+
+    fromDate = datetime.strptime(fromDate, "%Y-%m-%d")
+    toDate = datetime.strptime(toDate, "%Y-%m-%d")
     # Convert fromDate and toDate to Unix timestamps
     fromDate_unix = int(fromDate.timestamp() * 1000)
     toDate_unix = int(toDate.timestamp() * 1000)
@@ -117,6 +119,4 @@ def fetch_nasdaqbaltic_news(company, fromDate, toDate):
                         af.write(response.content)
 
 # Example usage
-from_date = datetime.strptime("2023-04-01", "%Y-%m-%d")
-to_date = datetime.strptime("2023-05-30", "%Y-%m-%d")
-fetch_nasdaqbaltic_news("LHV+Group", from_date, to_date)
+# fetch_nasdaqbaltic_news("LHV+Group", from_date, to_date)
