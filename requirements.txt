@@ -4,3 +4,6 @@ langchain
 openai
 unstructured
 promptlayer
+beautifulsoup4
+html2markdown
+htmltabletomd
