@@ -25,43 +25,14 @@
         "fileName" : "LHV Group 2023-04-ET.pdf",
         "attachmentUrl" : "https://attachment.news.eu.nasdaq.com/a8a6a0ce34a0f4d647a74a41270a22184"
       } ]
-    }, {
-      "disclosureId" : 1226781,
-      "categoryId" : 301,
-      "headline" : "Moody's tõstis LHV Panga hoiuste reitingute väljavaate positiivseks",
-      "language" : "et",
-      "languages" : [ "et", "en" ],
-      "company" : "LHV Group",
-      "cnsCategory" : "Börsiteade",
-      "messageUrl" : "https://view.news.eu.nasdaq.com/view?id=b21ba41e2222ad99f80e3b92a92c1bdfe&lang=et&src=listed",
-      "releaseTime" : "2023-05-10 09:06:03 +0300",
-      "published" : "2023-05-10 09:06:03 +0300",
-      "market" : "Main Market, Tallinn",
-      "cnsTypeId" : "25",
-      "attachment" : [ ]
-    }, {
-      "disclosureId" : 1224763,
-      "categoryId" : 301,
-      "headline" : "LHV Groupi Ühendkungriigi tütarettevõte sai pangalitsentsi",
-      "language" : "et",
-      "languages" : [ "en", "et" ],
-      "company" : "LHV Group",
-      "cnsCategory" : "Börsiteade",
-      "messageUrl" : "https://view.news.eu.nasdaq.com/view?id=b6694c10afd84972e4216788024071521&lang=et&src=listed",
-      "releaseTime" : "2023-05-03 08:00:00 +0300",
-      "published" : "2023-05-03 08:00:00 +0300",
-      "market" : "Main Market, Tallinn",
-      "cnsTypeId" : "25",
-      "attachment" : [ ]
     } ]
   },
-  "count" : 3
+  "count" : 1
 }
 
 """
 
 import requests
-import json
 import os
 from datetime import datetime
 from bs4 import BeautifulSoup
