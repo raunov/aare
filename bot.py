@@ -92,7 +92,7 @@ def run_discord_bot():
             # print(f'{username} said: "{user_message}" ({channel})')
 
             # Remove the bot mention from the user_message
-            user_message = user_message.replace(f'<@{client.user.id}>', username).strip()
+            user_message = user_message.replace(f'<@{client.user.id}>', client.user).strip()
             
             await send_response(message, user_message, is_private=False) # Send a response to the message
 
