@@ -31,8 +31,15 @@
 }
 
 """
+from datetime import datetime, timedelta
 
-def fetch_nasdaqbaltic_news(company, fromDate, toDate):
+company="EfTEN+Real+Estate+Fund+"
+# last 365 days
+fromDate=(datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
+toDate= datetime.now().strftime("%Y-%m-%d")
+language="et"
+
+def fetch_nasdaqbaltic_news(company, fromDate, toDate, language="et"):
     import requests
     import os
     from datetime import datetime
@@ -43,11 +50,11 @@ def fetch_nasdaqbaltic_news(company, fromDate, toDate):
     fromDate = datetime.strptime(fromDate, "%Y-%m-%d")
     toDate = datetime.strptime(toDate, "%Y-%m-%d")
     # Convert fromDate and toDate to Unix timestamps
-    fromDate_unix = int(fromDate.timestamp() * 1000)
-    toDate_unix = int(toDate.timestamp() * 1000)
+    from_date_unix = int(fromDate.timestamp() * 1000)
+    to_date_unix = int(toDate.timestamp() * 1000)
 
     # Fetch JSON data from the URL
-    url = f"https://api.news.eu.nasdaq.com/news/query.action?displayLanguage=et&timeZone=Europe%2FTallinn&dateMask=yyyy-MM-dd+HH%3Amm%3Ass+Z&limit=25&countResults=true&start=0&fromDate={fromDate_unix}&toDate={toDate_unix}&company={company}"
+    url = f"https://api.news.eu.nasdaq.com/news/query.action?displayLanguage={language}&timeZone=Europe%2FTallinn&dateMask=yyyy-MM-dd+HH%3Amm%3Ass+Z&limit=25&countResults=true&start=0&fromDate={from_date_unix}&toDate={to_date_unix}&company={company}"
     response = requests.get(url, timeout=5)
     data = response.json()
 
@@ -59,9 +66,12 @@ def fetch_nasdaqbaltic_news(company, fromDate, toDate):
     for item in data["results"]["item"]:
         # Extract relevant information
         date = datetime.strptime(item["published"], "%Y-%m-%d %H:%M:%S %z").strftime("%Y-%m-%d")
-        stock_name = item["company"].replace(" ", "_")
-        news_title = item["headline"].replace(" ", "_")
+        
+        #need to remove quotes from the name of the stock
+        stock_name = item["company"].replace(" ", "_").replace("/", "_").replace('"', '')
+        news_title = item["headline"].replace(" ", "_").replace("/", "_").replace('"', '')
         language_code = item["language"]
+        category = item["cnsCategory"].replace(" ", "_").replace("/", "_")
         message_url = item["messageUrl"]
         disclosure_id = item["disclosureId"]
 
@@ -71,9 +81,14 @@ def fetch_nasdaqbaltic_news(company, fromDate, toDate):
         message_response = requests.get(message_url, timeout=10)
         soup = BeautifulSoup(message_response.text, "html.parser")
         
+        # chdck if company folder exists, and create it if it doesn't
+        company_folder = os.path.join("documents", stock_name)
+        if not os.path.exists(company_folder):
+            os.makedirs(company_folder)
+        
         # Create a text file with the extracted information
-        file_name = f"{date}-{stock_name}-{news_title}-{disclosure_id}-{language_code}.md"
-        file_path = os.path.join("documents", file_name)
+        file_name = f"{date}-{stock_name}-{category}-{news_title}-{disclosure_id}-{language_code}.md"
+        file_path = os.path.join(company_folder, file_name)
 
         # Check if the file already exists, and skip downloading if it does
         if os.path.exists(file_path):
@@ -82,6 +97,7 @@ def fetch_nasdaqbaltic_news(company, fromDate, toDate):
         # Write the extracted information to the utf8 compatible text file
         with open(file_path, "w", encoding="utf8") as f:
             f.write(f"**Ettevõte:** {item['company']}\n")
+            f.write(f"**Kategooria:** {item['cnsCategory']}\n")
             f.write(f"**Avaldatud:** {date}\n")
             f.write(f"**URL:** {message_url}\n\n")
             f.write(f"## {item['headline']}\n\n")
@@ -103,20 +119,22 @@ def fetch_nasdaqbaltic_news(company, fromDate, toDate):
                 content += f"{markdown_element}\n\n"
             f.write(content)
 
-            # Download and save attachments
+            # Download and save attachments, but only pdf files
             if item["attachment"]:
                 for attachment in item["attachment"]:
                     attachment_name = attachment["fileName"]
                     attachment_url = attachment["attachmentUrl"]
                     attachment_ext = os.path.splitext(attachment_name)[1]
 
-                    # Save the attachment with the naming convention
-                    attachment_file_name = f"{date}-{stock_name}-{news_title}-{attachment_name}-{disclosure_id}-{language_code}{attachment_ext}"
-                    attachment_file_path = os.path.join("documents", attachment_file_name)
+                    # Check if the attachment is a PDF file
+                    if attachment_ext.lower() == ".pdf":
+                        # Save the attachment with the naming convention
+                        attachment_file_name = f"{date}-{stock_name}-{category}-{news_title}-{attachment_name}-{disclosure_id}-{language_code}{attachment_ext}"
+                        attachment_file_path = os.path.join(company_folder, attachment_file_name)
 
-                    response = requests.get(attachment_url, timeout=10)
-                    with open(attachment_file_path, "wb") as af:
-                        af.write(response.content)
+                        response = requests.get(attachment_url, timeout=10)
+                        with open(attachment_file_path, "wb") as af:
+                            af.write(response.content)
 
 # Example usage
-# fetch_nasdaqbaltic_news("LHV+Group", from_date, to_date)
+fetch_nasdaqbaltic_news(company, fromDate, toDate)

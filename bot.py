@@ -30,7 +30,7 @@ async def send_response(message, user_message, is_private):
         async with message.channel.typing():
             # fetch the 10 most recent messages from non-bots on the channel
             history = []
-            async for msg in message.channel.history(limit=10):
+            async for msg in message.channel.history(limit=5):
                 content = msg.content
                 user_tags = re.findall(r'<@!?(\d+)>', content)
 
@@ -87,13 +87,12 @@ def run_discord_bot():
             # Extract information from the message object
             username = str(message.author)
             user_message = str(message.content)
-            channel = str(message.channel)
 
             # Print the received message to the console
             # print(f'{username} said: "{user_message}" ({channel})')
 
             # Remove the bot mention from the user_message
-            user_message = user_message.replace(f'<@{client.user.id}>', '').strip()
+            user_message = user_message.replace(f'<@{client.user.id}>', username).strip()
             
             await send_response(message, user_message, is_private=False) # Send a response to the message
 

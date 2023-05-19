@@ -1,5 +1,4 @@
-from functions import analyze_stock, soovitus, chitchat, aastaaruanne
-
+import gpt_functions
 
 # Define a function to generate a response based on the user's input, including the user's name in the response
 def get_response(message: str, history:str, username:str) -> str:
@@ -15,24 +14,16 @@ def get_response(message: str, history:str, username:str) -> str:
 
     # Convert the message to lowercase for easier comparison
     p_message = message.lower()
-
-    # Check if the message is "hello" and return a greeting
-    if p_message == 'tere':
-        return 'Tervist, ' + username + '!'
     
-    if 'aktsia' or 'analüüs' in p_message: 
-        return analyze_stock(p_message)
+    worker=gpt_functions.chat_dispatcher(p_message)
     
-    if 'soovitus' in p_message:
-        return soovitus(p_message)
+    if worker=="börsiuudiste_haldur":
+        return gpt_functions.stocknews(p_message,username)
+    elif worker=="aktsianalüütik":
+        return gpt_functions.analyze_stock(p_message,username)
+    elif worker=="üldnõustaja":
+        return gpt_functions.soovitus(p_message,username)
+    elif worker=="vestluskaaslane":
+        return gpt_functions.chitchat(p_message, history, username)
     
-    if 'https' in p_message:
-        return aastaaruanne(p_message)
-    
-    # Check if the message is "!help" and return a help message
-    if p_message == '!abi':
-        return 'Proovi näiteks: `@aare, palun analüüsi Tallinna Kaubamaaja ja tema konkurentide aktsiaid'
-
-    # If none of the above conditions are met, return a default message indicating the bot didn't understand the input
-    #return history
-    return chitchat(p_message, history)
+    return worker + ": Ei oskagi nagu midagi kosta..."
