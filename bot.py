@@ -30,7 +30,7 @@ async def send_response(message, user_message, is_private):
         async with message.channel.typing():
             # fetch the 10 most recent messages from non-bots on the channel
             history = []
-            async for msg in message.channel.history(limit=5):
+            async for msg in message.channel.history(limit=10):
                 content = msg.content
                 user_tags = re.findall(r'<@!?(\d+)>', content)
 
@@ -49,7 +49,9 @@ async def send_response(message, user_message, is_private):
             # Get the appropriate response based on the user's message and recent message history on the channel
             # user_message is the last message in the history, take it out from the history
             user_message = history.pop()[1]
-            response = responses.get_response(user_message, history, message.author.name)
+            # get the response with the user_message and the history
+            bot_name=message.guild.me.name
+            response = responses.get_response(user_message, history, bot_name)
             
             # Send the response either privately or in the same channel, depending on the 'is_private' flag
             await message.author.send(response) if is_private else await message.channel.send(response)
@@ -85,14 +87,13 @@ def run_discord_bot():
         # Check if the bot is mentioned in the message
         if client.user in message.mentions:
             # Extract information from the message object
-            username = str(message.author)
             user_message = str(message.content)
 
             # Print the received message to the console
             # print(f'{username} said: "{user_message}" ({channel})')
 
             # Remove the bot mention from the user_message
-            user_message = user_message.replace(f'<@{client.user.id}>', client.user).strip()
+            user_message = user_message.replace(f'<@{client.user.id}>', '').strip()
             
             await send_response(message, user_message, is_private=False) # Send a response to the message
 

@@ -21,7 +21,7 @@ load_dotenv(find_dotenv())
 class Workers:
     def __init__(self):
         self.available_workers = {
-            "börsiuudiste_haldur": "kasutaja küsimus on seotud uudistega konkreetse ettevõtte kohta.",
+            "börsiuudiste nõunik": "kasutaja küsimus on seotud uudistega konkreetse ettevõtte kohta.",
             "aktsianalüütik": "kasutaja küsimus on seotud sooviga analüüsida konkreetse ettevõtte aktsiat",
             "üldnõustaja": "kasutaja soovib nõu mingi teema kohta",
             "vestluskaaslane": "kasutaja ei soovi midagi eelpoolnimetatut, vaid lihtsalt vestelda"
@@ -36,7 +36,7 @@ class Workers:
 workers_instance = Workers()
 
 
-def chat_dispatcher(user_input, name="Aare"):
+def chat_dispatcher(user_input):
     # Create a ChatOpenAI instance with the specified model_name and temperature
     chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
     # Convert the workers dictionary to a formatted string
@@ -44,7 +44,7 @@ def chat_dispatcher(user_input, name="Aare"):
     all_workers = workers_instance.get_all_workers()
     workers_str = ""
     for key, description in all_workers.items():
-        workers_str += f"* {key}: {description}\n"
+        workers_str += f"**{key}**: {description}\n"
 
     template = """
     Sa oled dispetser, kes otsustab kasutaja päringu põhjal, mis tüüpi päringuga on tegemist ja suunab selle vastavale spetsialistile. 
@@ -60,10 +60,10 @@ def chat_dispatcher(user_input, name="Aare"):
         [system_message_prompt, human_message_prompt]
     )
     chain = LLMChain(llm=chat, prompt=chat_prompt)
-    response = chain.run(user_input=user_input, name=name,workers_str=workers_str)
+    response = chain.run(user_input=user_input, workers_str=workers_str)
     return response
 
-def stocknews(user_input,name="Aare"):
+def stocknews(user_input):
     from query_news import query_news
     # check the storage folder for the folders for companies that you have stocknews index data for. 
     # lets create a log file for the requests in the storage folder called "requests_log.txt"
@@ -168,36 +168,45 @@ def soovitus(user_input, name="Aare"):
     response = chain.run(user_input=user_input, name=name)
     return response
 
-def analyze_stock(user_input, name="Aare"):
+def analyze_stock(user_input, history, name="Aare"):
     # Create a ChatOpenAI instance with the specified model_name and temperature
     chat = PromptLayerChatOpenAI(model_name="gpt-4", temperature=0)
     
+    history_txt = "\n".join([f"{user}: {message}" for user, message in history])
+
+    
     # Define a template string for the system message prompt
     template = """
-    Sa oled professionaalne investeerimisassistent, kes analüüsib aktsiaid. 
+    Sa oled professionaalne investeerimisassistent {name}, kes analüüsib aktsiaid. 
     Sinu eesmärk on aidata kasutajal kiiresti analüüsida aktsiat 
     ja anda esmalt soovitus, kas aktsiat osta või mitte, ning seejärel veenvalt põhjendada oma soovitust.
     Oled täpne, lühike ja konkreetne, ära raiska aega tervitusteks, mine kohte asja juurde.
     
-    Tuvasta kasutaja päringust ettevõtte nime või aktsia sümboli, ning analüüsi tüübi (tehniline, fundamentaalne, konkurentsianalüüs, jne).
+    Tuvasta kasutaja päringust või vestlusajaloost ettevõtte nimi või aktsia sümbol, ning analüüsi tüüp (tehniline, fundamentaalne, konkurentsianalüüs, jne).
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     
     human_template = """
     Aita kasutajat analüüsida vastavalt päringule, mis on <päring></päring> märkide vahel. 
     Päring võib sisaldada analüüsitava ettevõtte nime või mitut ettevõtet, samuti analüüsi tüüpi. 
+    Kui on vaja, siis võta arvesse ka vestlusajalugu <vestlusajalugu></vestlusajalugu>.
     Ole konkreetne ja selge, struktureeri oma vastus loogiliselt.
     Sõltumate küsimuse keelest, sina vastad eesti keeles.
     Kui sa ei tea vastust, siis ütle, et ei tea.
     
-    Kasutaja päring:<päring>{user_input}</päring>
+    Vestlusajalugu:<vestlusajalugu>
+    {history_txt}
+    </vestlusajalugu>
+    
+    Kasutaja päring:
+    <päring>{user_input}</päring>
     """
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages(
         [system_message_prompt, human_message_prompt]
     )
     chain = LLMChain(llm=chat, prompt=chat_prompt)
-    response = chain.run(user_input=user_input, name=name)
+    response = chain.run(user_input=user_input, name=name, history_txt=history_txt)
     
     return response
 
@@ -217,11 +226,11 @@ def chitchat(user_input, history, name="Aare"):
 
     # Define a template string for the system message prompt
     template = """
-    Sa oled lõbus vestluspartner nimega AARE, kes oskab suhelda erinevate inimestega, kohanedes nende vestlusstiiliga. 
+    Sa oled investeerimisteadlik vestluspartner nimega {name}, kes oskab suhelda erinevate inimestega, kohanedes nende vestlusstiiliga.
     Kui vestluspartner on lõbus, siis sina oled lõbus, kui vestluspartner on tõsine, siis sina oled tõsine.
-    Sinu eesmärk vestluskaaslast lõbustada jutustades lugusid, nalju, anekdoote, jne. 
-    Sinu lood, naljad, anektoodid on investeerimise teemalised. 
     Kui vestlusajaloost selgub, et oled juba tervitanud vestluspartnerit, siis ära seda rohkem tee, vaid mine kohe teema juurde.
+    Vestlusajaloos võivad olla erinevad vestluspartnerid, kellele saad vastata erinevalt. 
+    Ole tähelepanelik, et sa ei vastaks kogemata valele vestluspartnerile. Võta arvesse, et sinu enda nimi on {name}, seega ära korralda vestlust iseendaga.
     Kui vestluspartner küsib, mida sa teed või oskad, siis tee kokkuvõte olemasolevate spetsialistide oskustest mina vormis (nagu sa oleksid kõik spetsialistid ühes isikus).
     Olemasolevad spetsialistid on:
     {workers_str}
@@ -230,10 +239,26 @@ def chitchat(user_input, history, name="Aare"):
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     # convert the history to a string in the format: User: message\nUser: message\nUser: message
     history_txt = "\n".join([f"{user}: {message}" for user, message in history])
+    # list also all unique users in the history as comma separated string
+    users = ", ".join(set([user for user, message in history]))
     
     human_template = """
-    Kasutaja sõnum, mille teemal vestelda: {user_input}
-    Sellele eelnenud vestlusajalugu: {history_txt}
+    Viimane vestluspartneri sõnum, millele vastad on: 
+    ----------------------------------------
+    {user_input}
+    ----------------------------------------
+    
+    Ole tähelepanelik, et sa ei vastaks kogemata valele vestluspartnerile. Vestlusajaloos vestluspartnerid kelle nimed on (sealhulgas sina: {name}):
+    ----------------------------------------
+    {users}
+    ----------------------------------------
+    
+    Oma vastustes lähtud ka eelnevast vestlusest <eelnev_vestlus></eelnev_vestlus>, et olla võimalikult loomulik ning pakud vestlusele võimalikult palju väärtust. 
+    Võid vastata ka teistele vestluspartneritele, kui see on loogiline.
+    Kui sul ei ole vestlusse midagi lisada, siis ütle, et ei tea.
+    <eelnev_vestlus>
+    {history_txt}
+    </eelnev_vestlus>
     
     SINU VASTUS:
     """
@@ -242,6 +267,6 @@ def chitchat(user_input, history, name="Aare"):
         [system_message_prompt, human_message_prompt]
     )
     chain = LLMChain(llm=chat, prompt=chat_prompt)
-    response = chain.run(user_input=user_input, history_txt=history_txt, name=name,workers_str=workers_str)
+    response = chain.run(user_input=user_input, history_txt=history_txt, name=name,users=users, workers_str=workers_str)
     
     return response

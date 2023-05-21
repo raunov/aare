@@ -15,15 +15,15 @@ def get_response(message: str, history:str, username:str) -> str:
     # Convert the message to lowercase for easier comparison
     p_message = message.lower()
     
-    worker=gpt_functions.chat_dispatcher(p_message)
+    #lowercase, strip and remove punctuation
+    worker=gpt_functions.chat_dispatcher(p_message).strip().lower().replace(".","")
     
-    if worker=="börsiuudiste_haldur":
-        return gpt_functions.stocknews(p_message,username)
+    if worker=="börsiuudiste nõunik":
+        return gpt_functions.stocknews(p_message)
     elif worker=="aktsianalüütik":
-        return gpt_functions.analyze_stock(p_message,username)
+        # use only 5 last messages in history
+        return gpt_functions.analyze_stock(p_message, history[-5:], username)
     elif worker=="üldnõustaja":
         return gpt_functions.soovitus(p_message,username)
-    elif worker=="vestluskaaslane":
+    else:
         return gpt_functions.chitchat(p_message, history, username)
-    
-    return worker + ": Ei oskagi nagu midagi kosta..."
