@@ -33,7 +33,7 @@
 """
 from datetime import datetime, timedelta
 
-company="EfTEN+Real+Estate+Fund+"
+company="Enefit+Green"
 # last 365 days
 fromDate=(datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
 toDate= datetime.now().strftime("%Y-%m-%d")

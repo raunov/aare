@@ -10,7 +10,7 @@ load_dotenv(find_dotenv())
 
 OpenAI = PromptLayerOpenAI()
 
-company = "LHV_Group"
+company = "Enefit_Green"
 
 def index_documents(company: str) -> GPTVectorStoreIndex:
     # Step 1: Load documents
