@@ -25,6 +25,9 @@ async def send_response(message, user_message, is_private):
         None
     """
     try:
+        emoji = responses.get_emoji(user_message)
+        if emoji:
+            await message.add_reaction(emoji) # react to user's input with an appropriate emoji
         
         # set typing status on discord channel
         async with message.channel.typing():
