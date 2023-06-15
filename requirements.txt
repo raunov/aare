@@ -1,10 +1,10 @@
-discord.py
+discord.py>=2.2.3
 python-dotenv
-langchain
-openai
-unstructured
-promptlayer
+langchain>=0.0.179
+openai>=0.27.7
+unstructured>=0.6.9
+promptlayer==0.1.80 # no need for anthropic for now
 beautifulsoup4
 html2markdown
 htmltabletomd
-llama-index
+llama-index>=0.6.10.post1

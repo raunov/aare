@@ -168,35 +168,134 @@ def soovitus(user_input, name="Aare"):
     response = chain.run(user_input=user_input, name=name)
     return response
 
+def detect_stock_ticker(user_input):
+    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+
+    template = """
+    You are a stock ticker detector, who helps to find or validates the stock tickers for the companies in the user input text.
+    It can be from a major stock exchange such as NYSE or NASDAQ, or from a regional exchange. 
+    Only if the company is from a regional exchange, add the exchange code to the ticker. You only output a ticker, nothing else. If you don't recognize any ticker, output null.
+    regional exchanges supported:
+    Tallinn Stock Exchange - .TL
+    Helsinki Stock Exchange - .HE
+    Riga Stock Exchange - .RG
+    Vilnius Stock Exchange - .VS
+    Stockholm Stock Exchange - .ST
+    London Stock Exchange - .L
+    XETRA - .DE
+    
+    From Baltic exchanges these are available companies and their tickers:
+    Apranga: APG1L.VS
+    Arco Vara: ARC1T.TL
+    AUGA group: AUG1L.VS
+    Baltika: BLT1T.TL
+    Coop Pank: CPA1T.TL
+    DelfinGroup: DGR1R.RG
+    Ekspress Grupp: EEG1T.TL
+    EfTEN Real Estate Fund: EFT1T.TL
+    Enefit Green: EGR1T.TL
+    Grigeo: GRG1L.VS
+    Harju Elekter Group: HAE1T.TL
+    Hepsor: HPR1T.TL
+    INDEXO: IDX1R.RG
+    Ignitis grupė: IGN1L.VS
+    Klaipėdos nafta: KNF1L.VS
+    LHV Group: LHV1T.TL
+    Linas Agro Group: LNA1L.VS
+    Merko Ehitus: MRK1T.TL
+    Nordecon: NCN1T.TL
+    Novaturas: NTU1L.VS
+    Pro Kapital Grupp: PKG1T.TL
+    PRFoods: PRF1T.TL
+    Panevėžio statybos trestas: PTR1L.VS
+    Pieno žvaigždės: PZV1L.VS
+    Rokiškio sūris: RSU1L.VS
+    Šiaulių bankas: SAB1L.VS
+    SAF Tehnika: SAF1R.RG
+    Silvano Fashion Group: SFG1T.TL
+    Tallink Grupp: TAL1T.TL
+    Telia Lietuva: TEL1L.VS
+    Tallinna Kaubamaja Grupp: TKM1T.TL
+    Tallinna Sadam: TSM1T.TL
+    Tallinna Vesi: TVE1T.TL
+    Vilkyškių pieninė: VLP1L.VS
+
+    Example inputs and corresponding results:
+    
+    
+    Input: This is a Tesla competitor
+    Result: TSLA
+    
+    Input: The Apple computers inc is a great company
+    Result: AAPL
+    
+    Input: Mis firma see Mikrosoft oligi?
+    Result: MSFT
+    
+    Input: Ma ei teagi kuidas Lhv aktsia kood on
+    Result: LHV1T.TL
+    
+    Input: Was ist Deutche Telekom bekannt als?
+    Result: DTE.DE
+    
+    Input: Transferwise on nüüd Wise
+    Result: WISE.L
+    
+    Input: Vanaema vaaritas mulle suppi
+    Result: null
+    """
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    
+    human_template = """
+    Input: {user_input}
+    Result:
+    """
+    human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [system_message_prompt, human_message_prompt]
+    )
+    chain = LLMChain(llm=chat, prompt=chat_prompt)
+    response = chain.run(user_input=user_input)
+    return response
+
+
 def analyze_stock(user_input, history, name="Aare"):
+    import json
+    from stock_data import modules, quotes
     # Create a ChatOpenAI instance with the specified model_name and temperature
     chat = PromptLayerChatOpenAI(model_name="gpt-4", temperature=0)
     
     history_txt = "\n".join([f"{user}: {message}" for user, message in history])
+    
+    ticker = detect_stock_ticker(user_input)
+    context = json.dumps(quotes(ticker)) + "\n" + json.dumps(modules(ticker, "asset-profile,default-key-statistics"))
 
     
     # Define a template string for the system message prompt
     template = """
     Sa oled professionaalne investeerimisassistent {name}, kes analüüsib aktsiaid. 
-    Sinu eesmärk on aidata kasutajal kiiresti analüüsida aktsiat 
-    ja anda esmalt soovitus, kas aktsiat osta või mitte, ning seejärel veenvalt põhjendada oma soovitust.
-    Oled täpne, lühike ja konkreetne, ära raiska aega tervitusteks, mine kohte asja juurde.
+    Sinu eesmärk on kasutades konteksti aidata kasutajal kiiresti analüüsida aktsiat ning alati veenvalt põhjendada oma soovitusi.
+    Oled täpne, ja konkreetne, ära raiska aega tervitusteks, mine kohte asja juurde.
     
-    Tuvasta kasutaja päringust või vestlusajaloost ettevõtte nimi või aktsia sümbol, ning analüüsi tüüp (tehniline, fundamentaalne, konkurentsianalüüs, jne).
+    Sõltumata küsimuse ja olemasoleva konteksti keelest, sina vastad eesti keeles.
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     
     human_template = """
     Aita kasutajat analüüsida vastavalt päringule, mis on <päring></päring> märkide vahel. 
-    Päring võib sisaldada analüüsitava ettevõtte nime või mitut ettevõtet, samuti analüüsi tüüpi. 
+    Pead võtma arvesse ettevõtte spetsiifilist konteksti, mis asub <kontekst></kontekst> märkide vahel json formaadis.
     Kui on vaja, siis võta arvesse ka vestlusajalugu <vestlusajalugu></vestlusajalugu>.
     Ole konkreetne ja selge, struktureeri oma vastus loogiliselt.
-    Sõltumate küsimuse keelest, sina vastad eesti keeles.
-    Kui sa ei tea vastust, siis ütle, et ei tea.
+    Sõltumata küsimuse ja olemasoleva konteksti keelest, sina vastad eesti keeles.
+    Ära mõtle ise infot välja, kui sa ei tea vastust, siis ütle, et ei tea.
     
     Vestlusajalugu:<vestlusajalugu>
     {history_txt}
     </vestlusajalugu>
+    
+    Kontekts:<kontekst>
+    {context}
+    </kontekst>
     
     Kasutaja päring:
     <päring>{user_input}</päring>
@@ -206,7 +305,7 @@ def analyze_stock(user_input, history, name="Aare"):
         [system_message_prompt, human_message_prompt]
     )
     chain = LLMChain(llm=chat, prompt=chat_prompt)
-    response = chain.run(user_input=user_input, name=name, history_txt=history_txt)
+    response = chain.run(user_input=user_input, name=name, history_txt=history_txt, context=context)
     
     return response
 
@@ -222,7 +321,7 @@ def chitchat(user_input, history, name="Aare"):
         workers_str += f"* {key}: {description}\n"
     
     # Create a ChatOpenAI instance with the specified model_name and temperature
-    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.9)
+    chat = PromptLayerChatOpenAI(model_name="gpt-4", temperature=0.7)
 
     # Define a template string for the system message prompt
     template = """
@@ -269,5 +368,48 @@ def chitchat(user_input, history, name="Aare"):
     )
     chain = LLMChain(llm=chat, prompt=chat_prompt)
     response = chain.run(user_input=user_input, history_txt=history_txt, name=name,users=users, workers_str=workers_str)
+    
+    return response
+
+def chitchat_langchain():
+    # we're going to use langchain and the ConversationSummaryBufferMemory for remembering the conversation.
+    # It keeps buffer of recent interactions in memory, and compiles the old interactions into a summary and uses both.
+    
+    from langchain.memory import ConversationSummaryBufferMemory
+    from langchain.llms import PromptLayerOpenAIChat
+    
+    prompt="""
+    Kokkuvõtke järk-järgult antud vestlus, lisades eelnevale kokkuvõttele, et saada uus kokkuvõte.
+
+NÄIDE
+Praegune kokkuvõte:
+Inimene pärib AI-lt tehisintellekti kohta. AI peab tehisintellekti heaks jõuks.
+
+Uued vestluse read:
+Inimene: Miks pead sa tehisintellekti heaks jõuks?
+AI: Tehisintellekt aitab inimesi nende täieliku potentsiaali saavutamisel.
+
+Uus kokkuvõte:
+Inimene pärib AI-lt tehisintellekti kohta. AI leiab, et tehisintellekt on hea jõud, sest aitab inimestel saavutada oma täielikku potentsiaali.
+NÄITE LÕPP
+
+Praegune kokkuvõte:
+{summary}
+
+Uued vestluse read:
+{new_lines}
+
+Uus kokkuvõte:
+    """
+    
+    PromptTemplate = ChatPromptTemplate.from_template(prompt)
+    llm=PromptLayerOpenAIChat(model_name="gpt-4", temperature=0.7)
+    memory = ConversationSummaryBufferMemory(llm=llm, max_token_limit=650,prompt=PromptTemplate)
+    memory.save_context({"input": "Tere, kuidas läheb?"},{"output":"Hästi, sul?"})
+    memory.save_context({"input": "Hästi, sul?"},{"output":"Hästi, aitäh!"})
+    memory.load_memory_variables({})
+    messages = memory.chat_memory.messages
+    previous_summary = ""
+    response = memory.predict_new_summary(messages, previous_summary)
     
     return response
